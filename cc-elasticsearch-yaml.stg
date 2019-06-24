@@ -1,0 +1,153 @@
+/*
+ *
+ */
+
+cc-elasticsearch-yaml(parent, vars) ::= <<
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: elasticsearch
+  name: elasticsearch
+  namespace: robobeerun-com-elastic
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-discovery
+  namespace: robobeerun-com-elastic
+  labels:
+    component: elasticsearch
+    role: master
+spec:
+  selector:
+    component: elasticsearch
+    role: master
+  ports:
+  - name: transport
+    port: 9300
+    protocol: TCP
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-<vars.elastic.revision>
+  namespace: robobeerun-com-elastic
+  labels:
+    app: elasticsearch
+data:
+  elasticsearch.yml: |-
+    cluster:
+      name: ${CLUSTER_NAME}
+    node:
+      master: ${NODE_MASTER}
+      data: ${NODE_DATA}
+      name: ${NODE_NAME}
+      ingest: ${NODE_INGEST}
+      max_local_storage_nodes: 1
+      attr.box_type: hot
+
+    processors: ${PROCESSORS:1}
+
+    network.host: ${NETWORK_HOST}
+
+    path:
+      data: /usr/share/elasticsearch/data
+      logs: /usr/share/elasticsearch/logs
+
+    http:
+      compression: true
+
+    discovery:
+      zen:
+        ping.unicast.hosts: ${DISCOVERY_SERVICE}
+        minimum_master_nodes: ${NUMBER_OF_MASTERS}
+
+    # TLS Configuration Transport Layer
+    opendistro_security.ssl.transport.pemcert_filepath: elk-crt.pem
+    opendistro_security.ssl.transport.pemkey_filepath: elk-key.pem
+    opendistro_security.ssl.transport.pemtrustedcas_filepath: elk-root-ca.pem
+    opendistro_security.ssl.transport.pemkey_password: ${TRANSPORT_TLS_PEM_PASS}
+    opendistro_security.ssl.transport.enforce_hostname_verification: false
+
+    # TLS Configuration REST Layer
+    opendistro_security.ssl.http.enabled: true
+    opendistro_security.ssl.http.pemcert_filepath: elk-crt.pem
+    opendistro_security.ssl.http.pemkey_filepath: elk-key.pem
+    opendistro_security.ssl.http.pemtrustedcas_filepath: elk-root-ca.pem
+    opendistro_security.ssl.http.pemkey_password: ${HTTP_TLS_PEM_PASS}
+
+    # Demo Certificate Option Disabled
+    opendistro_security.allow_unsafe_democertificates: false
+
+    opendistro_security.allow_default_init_securityindex: false
+
+    opendistro_security.authcz.admin_dn:
+      - CN=admin.example.com
+    opendistro_security.nodes_dn:
+      - 'CN=sec.other.com,OU=SSL,O=Test,L=Test,C=DE'
+      - 'CN=*.example.com,OU=SSL,O=Test,L=Test,C=DE'
+      - 'CN=*.sec.example.com'
+      - 'CN=sec.examples.com'
+
+    opendistro_security.audit.type: internal_elasticsearch
+    opendistro_security.enable_snapshot_restore_privilege: true
+    opendistro_security.check_snapshot_restore_write_privileges: true
+    opendistro_security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
+    cluster.routing.allocation.disk.threshold_enabled: false
+    opendistro_security.audit.config.disabled_rest_categories: NONE
+    opendistro_security.audit.config.disabled_transport_categories: NONE
+
+  logging.yml: |-
+    # you can override this using by setting a system property, for example -Des.logger.level=DEBUG
+    es.logger.level: INFO
+    rootLogger: ${es.logger.level}, console
+    logger:
+      # log action execution errors for easier debugging
+      action: DEBUG
+      # reduce the logging for aws, too much is logged under the default INFO
+      com.amazonaws: WARN
+    appender:
+      console:
+        type: console
+        layout:
+          type: consolePattern
+          conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: elasticsearch-tls-data-<vars.elastic.revision>
+  namespace: robobeerun-com-elastic
+type: Opaque
+data:
+  elk-crt.pem: |-
+    <vars.elastic.cert.elkCrt;format="base64">
+
+  elk-key.pem: |-
+    <vars.elastic.cert.elkKey;format="base64">
+
+  elk-root-ca.pem: |-
+    <vars.elastic.cert.elkRoot;format="base64">
+
+  admin-crt.pem: |-
+    <vars.elastic.cert.adminCrt;format="base64">
+
+  admin-key.pem: |-
+    <vars.elastic.cert.adminKey;format="base64">
+
+  admin-root-ca.pem: |-
+    <vars.elastic.cert.adminRoot;format="base64">
+
+---
+
+>>
