@@ -17,7 +17,7 @@ metadata:
     component: elasticsearch
     role: master
 spec:
-  replicas: <vars.elastic.master.replicas>
+  replicas: <vars.elasticMaster.replicas>
   selector:
     matchLabels:
       component: elasticsearch
@@ -31,13 +31,13 @@ spec:
         role: master
     spec:
       containers:
-      - image: <vars.elastic.master.image.name>:<vars.elastic.master.image.version>
+      - image: <vars.elasticMaster.image.name>:<vars.elasticMaster.image.version>
         name: elasticsearch
         env:
         - name: CLUSTER_NAME
           value: logs
         - name: NUMBER_OF_MASTERS
-          value: "<vars.elastic.master.replicas>"
+          value: "<vars.elasticMaster.replicas>"
         - name: NODE_MASTER
           value: "true"
         - name: NODE_INGEST
@@ -73,8 +73,8 @@ spec:
           name: http
         - containerPort: 9600
           name: metrics
-        <tcpProbesPortGroup(vars.elastic.master, "transport")>
-        <resourcesGroup(vars.elastic.master)>
+        <tcpProbesPortGroup(vars.elasticMaster, "transport")>
+        <resourcesGroup(vars.elasticMaster)>
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
@@ -114,7 +114,7 @@ spec:
       - name: certs
         secret:
           secretName: elasticsearch-tls-data-<vars.elastic.revision>
-      <affinitiesGroup(vars.elastic.master.affinity)>
-      <tolerationMasterGroup(vars.elastic.master.allowOnMaster)>
-      <tolerationsGroup(vars.elastic.master.tolerations, vars.elastic.master.allowOnMaster)>
+      <affinitiesGroup(vars.elasticMaster.affinity)>
+      <tolerationMasterGroup(vars.elasticMaster.allowOnMaster)>
+      <tolerationsGroup(vars.elasticMaster.tolerations, vars.elasticMaster.allowOnMaster)>
 >>
