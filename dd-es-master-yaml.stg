@@ -65,7 +65,7 @@ spec:
             resourceFieldRef:
               resource: limits.cpu
         - name: ES_JAVA_OPTS
-          value: -Xms<vars.elastic.heap.start> -Xmx<vars.elastic.heap.max>
+          value: -Xms<vars.elasticMaster.heap.start> -Xmx<vars.elasticMaster.heap.max>
         ports:
         - containerPort: 9300
           name: transport
