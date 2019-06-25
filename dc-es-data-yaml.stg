@@ -125,10 +125,13 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: elasticsearch
+          name: elasticsearch-<vars.elastic.revision>
       - name: certs
         secret:
-          secretName: elasticsearch-tls-data
+          secretName: elasticsearch-tls-data-<vars.elastic.revision>
+      <affinitiesGroup(vars.elasticData.affinity)>
+      <tolerationMasterGroup(vars.elasticData.allowOnMaster)>
+      <tolerationsGroup(vars.elasticData.tolerations, vars.elasticData.allowOnMaster)>
   volumeClaimTemplates:
   - metadata:
       name: data
