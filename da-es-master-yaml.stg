@@ -117,4 +117,5 @@ spec:
       <affinitiesGroup(vars.elasticMaster.affinity)>
       <tolerationMasterGroup(vars.elasticMaster.allowOnMaster)>
       <tolerationsGroup(vars.elasticMaster.tolerations, vars.elasticMaster.allowOnMaster)>
+
 >>

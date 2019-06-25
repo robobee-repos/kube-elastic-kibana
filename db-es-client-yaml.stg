@@ -7,28 +7,28 @@ import "robobeerun-templates/tolerations.stg"
 import "robobeerun-templates/resources.stg"
 import "robobeerun-templates/tcp_probe.stg"
 
-dc-es-data-yaml(parent, vars) ::= <<
+db-es-client-yaml(parent, vars) ::= <<
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     component: elasticsearch
-    role: data
-  name: es-data
+    role: client
+  name: es-client
   namespace: robobeerun-com-elastic
 spec:
-  serviceName: elasticsearch-data
-  replicas: <vars.elasticData.replicas>
+  replicas: <vars.elasticClient.replicas>
   selector:
     matchLabels:
       component: elasticsearch
-      role: data
+      role: client
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: data
+        role: client
     spec:
+      serviceAccountName: elasticsearch
       initContainers:
       - name: init-sysctl
         image: busybox:1.27.2
@@ -38,30 +38,25 @@ spec:
         - vm.max_map_count=262144
         securityContext:
           privileged: true
-      - name: fixmount
-        command: [ 'sh', '-c', 'chown -R 1000:1000 /usr/share/elasticsearch/data' ]
-        image: busybox
-        volumeMounts:
-          - mountPath: /usr/share/elasticsearch/data
-            name: data
-      serviceAccountName: elasticsearch
       containers:
       - name: elasticsearch
         env:
         - name: CLUSTER_NAME
           value: logs
+        - name: NUMBER_OF_MASTERS
+          value: "<vars.elasticMaster.replicas>"
         - name: NODE_MASTER
           value: "false"
         - name: NODE_INGEST
+          value: "true"
+        - name: NODE_DATA
           value: "false"
-        - name: NETWORK_HOST
-          value: "_eth0_"
         - name: TRANSPORT_TLS_PEM_PASS
           value: "<vars.elastic.cert.elkPass>"
         - name: HTTP_TLS_PEM_PASS
           value: "<vars.elastic.cert.elkPass>"
-        - name: NUMBER_OF_MASTERS
-          value: "<vars.elasticMaster.replicas>"
+        - name: NETWORK_HOST
+          value: "_eth0_"
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -72,24 +67,24 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: NODE_DATA
-          value: "true"
         - name: PROCESSORS
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
         - name: ES_JAVA_OPTS
-          value: -Xms<vars.elasticData.heap.start> -Xmx<vars.elasticData.heap.max>
+          value: -Xms<vars.elasticClient.heap.start> -Xmx<vars.elasticClient.heap.max>
         image: <vars.elastic.image.name>:<vars.elastic.image.version>
         imagePullPolicy: Always
         ports:
+        - containerPort: 9200
+          name: http
         - containerPort: 9300
           name: transport
-        <tcpProbesPortGroup(vars.elasticData, "transport")>
-        <resourcesGroup(vars.elasticData)>
+        - containerPort: 9600
+          name: metrics
+        <tcpProbesPortGroup(vars.elasticClient, "transport")>
+        <resourcesGroup(vars.elasticClient)>
         volumeMounts:
-        - mountPath: /usr/share/elasticsearch/data
-          name: data
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
@@ -127,19 +122,8 @@ spec:
       - name: certs
         secret:
           secretName: elasticsearch-tls-data-<vars.elastic.revision>
-      <affinitiesGroup(vars.elasticData.affinity)>
-      <tolerationMasterGroup(vars.elasticData.allowOnMaster)>
-      <tolerationsGroup(vars.elasticData.tolerations, vars.elasticData.allowOnMaster)>
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ ReadWriteOnce ]
-<if(vars.elasticData.storage.class)>
-      storageClassName: <vars.elasticData.storage.class>
-<endif>
-      resources:
-        requests:
-          storage: <vars.elasticData.storage.size>
+      <affinitiesGroup(vars.elasticClient.affinity)>
+      <tolerationClientGroup(vars.elasticClient.allowOnClient)>
+      <tolerationsGroup(vars.elasticClient.tolerations, vars.elasticClient.allowOnClient)>
 
 >>
