@@ -90,12 +90,11 @@ data:
     opendistro_security.allow_default_init_securityindex: false
 
     opendistro_security.authcz.admin_dn:
-      - CN=admin.example.com
+      - CN=admin
     opendistro_security.nodes_dn:
-      - 'CN=sec.other.com,OU=SSL,O=Test,L=Test,C=DE'
-      - 'CN=*.example.com,OU=SSL,O=Test,L=Test,C=DE'
-      - 'CN=*.sec.example.com'
-      - 'CN=sec.examples.com'
+      - 'CN=node-0.es.muellerpublic.de,OU=muellerpublic.de CA,O=muellerpublic.de,ST=BAVARIA,C=DE'
+      - 'CN=*.es.muellerpublic.de,OU=muellerpublic.de CA,O=muellerpublic.de,ST=BAVARIA,C=DE'
+      - 'CN=*.muellerpublic.de'
 
     opendistro_security.audit.type: internal_elasticsearch
     opendistro_security.enable_snapshot_restore_privilege: true
