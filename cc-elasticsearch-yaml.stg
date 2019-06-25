@@ -114,6 +114,7 @@ data:
     opendistro_security.authcz.admin_dn:
       - 'C=DE,ST=BAVARIA,L=MUNICH,O=muellerpublic.de,OU=muellerpublic.de CA,CN=admin'
     opendistro_security.nodes_dn:
+      - 'C=DE, ST=BAVARIA, O=muellerpublic.de, OU=muellerpublic.de CA, CN=node-0.es.muellerpublic.de'
       - 'CN=*.es.muellerpublic.de'
       - 'CN=*.muellerpublic.de'
 
