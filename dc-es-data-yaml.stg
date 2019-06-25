@@ -7,49 +7,63 @@ import "robobeerun-templates/tolerations.stg"
 import "robobeerun-templates/resources.stg"
 import "robobeerun-templates/tcp_probe.stg"
 
-dd-es-master-yaml(parent, vars) ::= <<
-apiVersion: extensions/v1beta1
-kind: Deployment
+dc-es-data-yaml(parent, vars) ::= <<
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: elasticsearch
-  namespace: robobeerun-com-elastic
   labels:
     component: elasticsearch
-    role: master
+    role: data
+  name: es-data
+  namespace: robobeerun-com-elastic
 spec:
-  replicas: <vars.elasticMaster.replicas>
+  serviceName: elasticsearch-data
+  replicas: <vars.elasticData.replicas>
   selector:
     matchLabels:
       component: elasticsearch
-      role: master
-  strategy:
-    type: Recreate
+      role: data
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: master
+        role: data
+      annotations:
+        iam.amazonaws.com/role: <ARN_OF_IAM_ROLE_FOR_CONTAINER>
     spec:
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.27.2
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      - name: fixmount
+        command: [ 'sh', '-c', 'chown -R 1000:1000 /usr/share/elasticsearch/data' ]
+        image: busybox
+        volumeMounts:
+          - mountPath: /usr/share/elasticsearch/data
+            name: data
+      serviceAccountName: elasticsearch
       containers:
-      - image: <vars.elasticMaster.image.name>:<vars.elasticMaster.image.version>
-        name: elasticsearch
+      - name: elasticsearch
         env:
         - name: CLUSTER_NAME
           value: logs
-        - name: NUMBER_OF_MASTERS
-          value: "<vars.elasticMaster.replicas>"
         - name: NODE_MASTER
-          value: "true"
+          value: "false"
         - name: NODE_INGEST
           value: "false"
-        - name: NODE_DATA
-          value: "false"
         - name: NETWORK_HOST
-          value: "0.0.0.0"
+          value: "_eth0_"
         - name: TRANSPORT_TLS_PEM_PASS
           value: "<vars.elastic.cert.elkPass>"
         - name: HTTP_TLS_PEM_PASS
           value: "<vars.elastic.cert.elkPass>"
+        - name: NUMBER_OF_MASTERS
+          value: "<vars.elasticMaster.replicas>"
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -60,22 +74,24 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        - name: NODE_DATA
+          value: "true"
         - name: PROCESSORS
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
         - name: ES_JAVA_OPTS
-          value: -Xms<vars.elasticMaster.heap.start> -Xmx<vars.elasticMaster.heap.max>
+          value: -Xms<vars.elasticData.heap.start> -Xmx<vars.elasticData.heap.max>
+        image: image: <vars.elastic.image.name>:<vars.elastic.image.version>
+        imagePullPolicy: Always
         ports:
         - containerPort: 9300
           name: transport
-        - containerPort: 9200
-          name: http
-        - containerPort: 9600
-          name: metrics
-        <tcpProbesPortGroup(vars.elasticMaster, "transport")>
-        <resourcesGroup(vars.elasticMaster)>
+        <tcpProbesPortGroup(vars.elasticData, "transport")>
+        <resourcesGroup(vars.elasticData)>
         volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: data
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
@@ -106,15 +122,22 @@ spec:
           name: certs
           subPath: admin-root-ca.pem
           readOnly: true
-      restartPolicy: Always
       volumes:
       - name: config
         configMap:
-          name: elasticsearch-<vars.elastic.revision>
+          name: elasticsearch
       - name: certs
         secret:
-          secretName: elasticsearch-tls-data-<vars.elastic.revision>
-      <affinitiesGroup(vars.elasticMaster.affinity)>
-      <tolerationMasterGroup(vars.elasticMaster.allowOnMaster)>
-      <tolerationsGroup(vars.elasticMaster.tolerations, vars.elasticMaster.allowOnMaster)>
+          secretName: elasticsearch-tls-data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ ReadWriteOnce ]
+<if(vars.elasticData.storage.class)>
+      storageClassName: <vars.elasticData.storage.class>
+<endif>
+      resources:
+        requests:
+          storage: <vars.elasticData.storage.size>
 >>
