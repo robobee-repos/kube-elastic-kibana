@@ -82,7 +82,7 @@ spec:
               resource: limits.cpu
         - name: ES_JAVA_OPTS
           value: -Xms<vars.elasticData.heap.start> -Xmx<vars.elasticData.heap.max>
-        image: image: <vars.elastic.image.name>:<vars.elastic.image.version>
+        image: <vars.elastic.image.name>:<vars.elastic.image.version>
         imagePullPolicy: Always
         ports:
         - containerPort: 9300
