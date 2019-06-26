@@ -42,6 +42,8 @@ data:
     elasticsearch.ssl.certificateAuthorities: /usr/share/kibana/config/kibana-root-ca.pem
     elasticsearch.ssl.verificationMode: certificate
 
+    opendistro_security.allow_client_certificates: true
+    
     opendistro_security.cookie.secure: true
     opendistro_security.cookie.password: ${COOKIE_PASS}
 
