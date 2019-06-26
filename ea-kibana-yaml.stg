@@ -31,11 +31,16 @@ data:
     elasticsearch.requestTimeout: 360000
 
     # Kibana TLS Config
-    server.ssl.enabled: true
-    server.ssl.key: /usr/share/kibana/config/kibana-key.pem
-    server.ssl.certificate: /usr/share/kibana/config/kibana-crt.pem
-    server.ssl.keyPassphrase: ${KEY_PASSPHRASE}
+    server.ssl.enabled: false
+    #server.ssl.key: /usr/share/kibana/config/kibana-key.pem
+    #server.ssl.certificate: /usr/share/kibana/config/kibana-crt.pem
+    #server.ssl.keyPassphrase: ${KEY_PASSPHRASE}
+    
+    elasticsearch.ssl.certificate: /usr/share/kibana/config/kibana-crt.pem
+    elasticsearch.ssl.key: /usr/share/kibana/config/kibana-key.pem
+    elasticsearch.ssl.keyPassphrase: ${KEY_PASSPHRASE}
     elasticsearch.ssl.certificateAuthorities: /usr/share/kibana/config/kibana-root-ca.pem
+    elasticsearch.ssl.verificationMode: certificate
 
     opendistro_security.cookie.secure: true
     opendistro_security.cookie.password: ${COOKIE_PASS}
