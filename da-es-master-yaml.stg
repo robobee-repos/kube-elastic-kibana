@@ -110,11 +110,18 @@ spec:
           name: users
           subPath: internal_users.yml
           readOnly: true
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/config.yml
+          name: security
+          subPath: config.yml
+          readOnly: true
       restartPolicy: Always
       volumes:
       - name: config
         configMap:
           name: elasticsearch-<vars.elastic.revision>
+      - name: security
+        configMap:
+          name: elasticsearch-security-<vars.elastic.revision>
       - name: certs
         secret:
           secretName: elasticsearch-tls-data-<vars.elastic.revision>

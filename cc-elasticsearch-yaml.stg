@@ -204,12 +204,11 @@ stringData:
 ---
 
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
   name: elasticsearch-security-<vars.elastic.revision>
   namespace: robobeerun-com-elastic
-type: Opaque
-stringData:
+data:
   config.yml: |
     opendistro_security:
       dynamic:
