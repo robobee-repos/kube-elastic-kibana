@@ -112,9 +112,9 @@ data:
     opendistro_security.allow_default_init_securityindex: false
 
     opendistro_security.authcz.admin_dn:
-      - 'C=DE,ST=BAVARIA,L=MUNICH,O=muellerpublic.de,OU=es.muellerpublic.de,CN=admin'
+      - 'CN=admin,OU=es.muellerpublic.de,O=muellerpublic.de,L=MUNICH,ST=BAVARIA,C=DE'
     opendistro_security.nodes_dn:
-      - 'C=DE,ST=BAVARIA,O=muellerpublic.de,OU=es.muellerpublic.de,CN=*.es.muellerpublic.de'
+      - 'CN=*.es.muellerpublic.de,OU=es.muellerpublic.de,O=muellerpublic.de,ST=BAVARIA,C=DE'
 
     opendistro_security.audit.type: internal_elasticsearch
     opendistro_security.enable_snapshot_restore_privilege: true
