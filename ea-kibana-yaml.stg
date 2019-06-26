@@ -95,7 +95,7 @@ spec:
         - name: ELASTICSEARCH_URL
           value: "https://elasticsearch.robobeerun-com-elastic.svc"
         - name: ELASTICSEARCH_PASSWORD
-          value: <vars.elastic.users.admin.password>
+          value: <vars.elastic.users.kibanaPass.password>
         - name: KEY_PASSPHRASE
           value: <vars.elastic.cert.kibanaPass>
         - name: COOKIE_PASS
