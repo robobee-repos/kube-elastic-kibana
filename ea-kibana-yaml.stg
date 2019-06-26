@@ -62,15 +62,18 @@ metadata:
   namespace: robobeerun-com-elastic
   labels:
     component: kibana
+    app: kibana
 spec:
   replicas: 1
   selector:
     matchLabels:
      component: kibana
+     app: kibana
   template:
     metadata:
       labels:
         component: kibana
+        app: kibana
     spec:
       containers:
       - name: kibana
@@ -116,6 +119,32 @@ spec:
       <affinitiesGroup(vars.kibana.affinity)>
       <tolerationMasterGroup(vars.kibana.allowOnMaster)>
       <tolerationsGroup(vars.kibana.tolerations, vars.kibana.allowOnMaster)>
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kibana
+  namespace: robobeerun-com-elastic
+  annotations:
+    <ingressDefaultAnnotations(vars.kibana.nginx)>
+spec:
+  <ingressDefaultSpec("kibana-ingress", vars.kibana.hosts)>
+
+---
+
+<ingressService("kibana-ingress", "kibana", "robobeerun-com-elastic", vars.nginx)>
+
+---
+
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: kibana-ingress
+  namespace: robobeerun-com-elastic
+spec:
+  <certDefaultSpec("kibana-ingress-tls", vars.kibana.hosts, vars.kibana.issuer)>
 
 ---
 
