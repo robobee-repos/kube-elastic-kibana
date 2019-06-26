@@ -228,7 +228,7 @@ data:
             order: 4
             http_authenticator:
               type: basic
-              challenge: true
+              challenge: false
             authentication_backend:
               type: intern
           openid_auth_domain:
@@ -242,9 +242,6 @@ data:
                 subject_key: preferred_username
                 roles_key: roles
                 openid_connect_url: <vars.elastic.openidConnectUrl>
-                #jwt_url_parameter: <vars.elastic.jwtUrl>
-                enable_ssl: true
-                verify_hostnames: true
             authentication_backend:
               type: noop
         authz:    

@@ -52,6 +52,8 @@ data:
     opendistro_security.openid.client_id: "<vars.kibana.openid.id>"
     opendistro_security.openid.client_secret: "<vars.kibana.openid.secret>"
 
+    elasticsearch.requestHeadersWhitelist: ["Authorization", "security_tenant"]
+
 ---
 
 apiVersion: v1
