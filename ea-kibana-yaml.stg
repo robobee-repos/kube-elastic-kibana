@@ -1,0 +1,119 @@
+/*
+ *
+ */
+
+import "robobeerun-templates/affinities.stg"
+import "robobeerun-templates/tolerations.stg"
+import "robobeerun-templates/resources.stg"
+import "robobeerun-templates/tcp_probe.stg"
+
+dc-es-data-yaml(parent, vars) ::= <<
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-<vars.kibana.revision>
+  namespace: robobeerun-com-elastic
+  labels:
+    app: kibana
+data:
+  kibana.yml: |-
+    ---
+    # Default Kibana configuration from kibana-docker.
+    server.name: kibana
+    server.host: "0"
+
+    # Replace with Elasticsearch DNS name picked during Service deployment
+    elasticsearch.url: ${ELASTICSEARCH_URL}
+    elasticsearch.requestTimeout: 360000
+
+    # Kibana TLS Config
+    server.ssl.enabled: true
+    server.ssl.key: /usr/share/kibana/config/kibana-key.pem
+    server.ssl.certificate: /usr/share/kibana/config/kibana-crt.pem
+    server.ssl.keyPassphrase: ${KEY_PASSPHRASE}
+    elasticsearch.ssl.certificateAuthorities: /usr/share/kibana/config/kibana-root-ca.pem
+
+    opendistro_security.cookie.secure: true
+    opendistro_security.cookie.password: ${COOKIE_PASS}
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kibana-tls-data-<vars.kibana.revision>
+  namespace: robobeerun-com-elastic
+type: Opaque
+data:
+  kibana-crt.pem: <vars.kibana.cert.crt;format="base64">
+
+  kibana-key.pem: <vars.kibana.cert.key;format="base64">
+
+  kibana-root-ca.pem: <vars.kibana.cert.root;format="base64">
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: robobeerun-com-elastic
+  labels:
+    component: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: kibana
+  template:
+    metadata:
+      labels:
+        component: kibana
+    spec:
+      containers:
+      - name: kibana
+        image: <vars.kibana.image.name>:<vars.kibana.image.version>
+        env:
+        - name: CLUSTER_NAME
+          value: logs
+        - name: ELASTICSEARCH_USERNAME
+          value: kibanaserver
+        - name: ELASTICSEARCH_URL
+          value: "elasticsearch.robobeerun-com-elastic.svc"
+        - name: ELASTICSEARCH_PASSWORD
+          value: <vars.elastic.users.admin.password>
+        - name: KEY_PASSPHRASE
+          value: <vars.elastic.cert.kibanaPass>
+        - name: COOKIE_PASS
+          value: <vars.kibana.cookiePass>
+        <resourcesGroup(vars.kibana)>
+        <httpReadinessProbeGroup(vars.kibana)>
+        ports:
+        - containerPort: 5601
+          name: http
+        volumeMounts:
+        - mountPath: /usr/share/kibana/config/kibana.yml
+          name: config
+          subPath: kibana.yml
+        - mountPath: /usr/share/kibana/config/kibana-crt.pem
+          name: certs
+          subPath: kibana-crt.pem
+        - mountPath: /usr/share/kibana/config/kibana-key.pem
+          name: certs
+          subPath: kibana-key.pem
+        - mountPath: /usr/share/kibana/config/kibana-root-ca.pem
+          name: certs
+          subPath: kibana-root-ca.pem
+      volumes:
+      - name: config
+        configMap:
+          name: kibana-<vars.kibana.revision>
+      - name: certs
+        secret:
+          secretName: kibana-tls-data-<vars.kibana.revision>
+
+---
+
+>>
