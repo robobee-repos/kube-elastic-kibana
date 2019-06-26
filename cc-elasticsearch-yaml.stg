@@ -163,4 +163,45 @@ data:
 
 ---
 
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: elasticsearch-users-<vars.elastic.revision>
+  namespace: robobeerun-com-elastic
+type: Opaque
+stringData:
+  internal_users.yml: |
+    admin:
+      readonly: true
+      hash: <vars.elastic.users.admin.hash>
+      roles:
+        - admin
+      attributes:
+        attribute1: value1
+        attribute2: value2
+        attribute3: value3
+    logstash:
+      hash: <vars.elastic.users.logstash.hash>
+      roles:
+        - logstash
+    kibanaserver:
+      readonly: true
+      hash: <vars.elastic.users.kibanaserver.hash>
+    kibanaro:
+      hash: <vars.elastic.users.kibanaro.hash>
+      roles:
+        - kibanauser
+        - readall
+    readall:
+      hash: <vars.elastic.users.readall.hash>
+      roles:
+        - readall
+    snapshotrestore:
+      hash: <vars.elastic.users.snapshotrestore.hash>
+      roles:
+        - snapshotrestore
+
+---
+
 >>

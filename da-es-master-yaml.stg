@@ -106,6 +106,10 @@ spec:
           name: certs
           subPath: admin-root-ca.pem
           readOnly: true
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+          name: users
+          subPath: internal_users.yml
+          readOnly: true
       restartPolicy: Always
       volumes:
       - name: config
@@ -114,6 +118,9 @@ spec:
       - name: certs
         secret:
           secretName: elasticsearch-tls-data-<vars.elastic.revision>
+      - name: users
+        secret:
+          secretName: elasticsearch-users-<vars.elastic.revision>
       <affinitiesGroup(vars.elasticMaster.affinity)>
       <tolerationMasterGroup(vars.elasticMaster.allowOnMaster)>
       <tolerationsGroup(vars.elasticMaster.tolerations, vars.elasticMaster.allowOnMaster)>
