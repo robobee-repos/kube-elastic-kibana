@@ -127,7 +127,15 @@ spec:
       - name: certs
         secret:
           secretName: elasticsearch-tls-data-<vars.elastic.revision>
-      <affinitiesGroup(vars.elasticData.affinity)>
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: <vars.elasticData.affinity.key>
+                operator: In
+                values:
+                - required
       <tolerationMasterGroup(vars.elasticData.allowOnMaster)>
       <tolerationsGroup(vars.elasticData.tolerations, vars.elasticData.allowOnMaster)>
   volumeClaimTemplates:
