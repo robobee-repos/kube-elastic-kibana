@@ -46,6 +46,11 @@ data:
     
     opendistro_security.cookie.secure: true
     opendistro_security.cookie.password: ${COOKIE_PASS}
+    
+    opendistro_security.auth.type: "openid"
+    opendistro_security.openid.connect_url: "<vars.kibana.openid.url>"
+    opendistro_security.openid.client_id: "<vars.kibana.openid.id>"
+    opendistro_security.openid.client_secret: "<vars.kibana.openid.secret>"
 
 ---
 

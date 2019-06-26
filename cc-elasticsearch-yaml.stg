@@ -163,7 +163,6 @@ data:
 
 ---
 
-
 apiVersion: v1
 kind: Secret
 metadata:
@@ -202,6 +201,102 @@ stringData:
       roles:
         - snapshotrestore
 
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: elasticsearch-security-<vars.elastic.revision>
+  namespace: robobeerun-com-elastic
+type: Opaque
+stringData:
+  config.yml: |
+    opendistro_security:
+      dynamic:
+        http:
+          anonymous_auth_enabled: false
+          xff:
+            enabled: false
+            internalProxies: '192\.168\.0\.10|192\.168\.0\.11' # regex pattern
+            #internalProxies: '.*' # trust all internal proxies, regex pattern
+            remoteIpHeader:  'x-forwarded-for'
+            proxiesHeader:   'x-forwarded-by'
+            #trustedProxies: '.*' # trust all external proxies, regex pattern
+        authc:
+          basic_internal_auth_domain: 
+            http_enabled: true
+            transport_enabled: true
+            order: 4
+            http_authenticator:
+              type: basic
+              challenge: true
+            authentication_backend:
+              type: intern
+          openid_auth_domain:
+            http_enabled: true
+            transport_enabled: true
+            order: 5
+            http_authenticator:
+              type: openid
+              challenge: false
+              config:
+                subject_key: preferred_username
+                roles_key: roles
+                openid_connect_url: <vars.elastic.openidConnectUrl>
+                #jwt_url_parameter: <vars.elastic.jwtUrl>
+                enable_ssl: true
+                verify_hostnames: true
+            authentication_backend:
+              type: noop
+        authz:    
+          roles_from_myldap:
+            http_enabled: false
+            transport_enabled: false
+            authorization_backend:
+              # LDAP authorization backend (gather roles from a LDAP or Active Directory, you have to configure the above LDAP authentication backend settings too)
+              type: ldap 
+              config:
+                # enable ldaps
+                enable_ssl: false
+                # enable start tls, enable_ssl should be false
+                enable_start_tls: false
+                # send client certificate
+                enable_ssl_client_auth: false
+                # verify ldap hostname
+                verify_hostnames: true
+                hosts:
+                  - localhost:8389
+                bind_dn: null
+                password: null
+                rolebase: 'ou=groups,dc=example,dc=com'
+                # Filter to search for roles (currently in the whole subtree beneath rolebase)
+                # {0} is substituted with the DN of the user
+                # {1} is substituted with the username 
+                # {2} is substituted with an attribute value from user's directory entry, of the authenticated user. Use userroleattribute to specify the name of the attribute            
+                rolesearch: '(member={0})'
+                # Specify the name of the attribute which value should be substituted with {2} above
+                userroleattribute: null
+                # Roles as an attribute of the user entry
+                userrolename: disabled
+                #userrolename: memberOf
+                # The attribute in a role entry containing the name of that role, Default is "name".
+                # Can also be "dn" to use the full DN as rolename.
+                rolename: cn
+                # Resolve nested roles transitive (roles which are members of other roles and so on ...)
+                resolve_nested_roles: true
+                userbase: 'ou=people,dc=example,dc=com'
+                # Filter to search for users (currently in the whole subtree beneath userbase)
+                # {0} is substituted with the username 
+                usersearch: '(uid={0})'
+                # Skip users matching a user name, a wildcard or a regex pattern
+                #skip_users: 
+                #  - 'cn=Michael Jackson,ou*people,o=TEST'
+                #  - '/\S*/'    
+          roles_from_another_ldap:
+            enabled: false
+            authorization_backend:
+              type: ldap 
+              #config goes here ...
 ---
 
 >>
