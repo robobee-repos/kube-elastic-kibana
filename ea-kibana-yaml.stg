@@ -81,7 +81,7 @@ spec:
         - name: ELASTICSEARCH_USERNAME
           value: kibanaserver
         - name: ELASTICSEARCH_URL
-          value: "elasticsearch.robobeerun-com-elastic.svc"
+          value: "https://elasticsearch.robobeerun-com-elastic.svc:9200"
         - name: ELASTICSEARCH_PASSWORD
           value: <vars.elastic.users.admin.password>
         - name: KEY_PASSPHRASE
