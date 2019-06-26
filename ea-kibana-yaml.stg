@@ -5,7 +5,7 @@
 import "robobeerun-templates/affinities.stg"
 import "robobeerun-templates/tolerations.stg"
 import "robobeerun-templates/resources.stg"
-import "robobeerun-templates/http_probe.stg"
+import "robobeerun-templates/tcp_probe.stg"
 import "robobeerun-templates/cert_config.stg"
 import "robobeerun-templates/ingress_config.stg"
 
@@ -106,7 +106,7 @@ spec:
         - name: COOKIE_PASS
           value: <vars.kibana.cookiePass>
         <resourcesGroup(vars.kibana)>
-        <httpReadinessProbeGroup(vars.kibana)>
+        <tcpProbesPortGroup(vars.kibana, "http")>
         ports:
         - containerPort: 5601
           name: http
