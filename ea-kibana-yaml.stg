@@ -6,6 +6,8 @@ import "robobeerun-templates/affinities.stg"
 import "robobeerun-templates/tolerations.stg"
 import "robobeerun-templates/resources.stg"
 import "robobeerun-templates/http_probe.stg"
+import "robobeerun-templates/cert_config.stg"
+import "robobeerun-templates/ingress_config.stg"
 
 ea-kibana-yaml(parent, vars) ::= <<
 ---
@@ -119,6 +121,23 @@ spec:
       <affinitiesGroup(vars.kibana.affinity)>
       <tolerationMasterGroup(vars.kibana.allowOnMaster)>
       <tolerationsGroup(vars.kibana.tolerations, vars.kibana.allowOnMaster)>
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: robobeerun-com-elastic
+  labels:
+    app: kibana
+spec:
+  ports:
+  - name: "http"
+    port: 8080
+    targetPort: "http"
+  selector:
+    app: kibana
 
 ---
 
