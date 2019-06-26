@@ -5,9 +5,9 @@
 import "robobeerun-templates/affinities.stg"
 import "robobeerun-templates/tolerations.stg"
 import "robobeerun-templates/resources.stg"
-import "robobeerun-templates/tcp_probe.stg"
+import "robobeerun-templates/http_probe.stg"
 
-dc-es-data-yaml(parent, vars) ::= <<
+ea-kibana-yaml(parent, vars) ::= <<
 ---
 
 apiVersion: v1
@@ -113,6 +113,9 @@ spec:
       - name: certs
         secret:
           secretName: kibana-tls-data-<vars.kibana.revision>
+      <affinitiesGroup(vars.kibana.affinity)>
+      <tolerationMasterGroup(vars.kibana.allowOnMaster)>
+      <tolerationsGroup(vars.kibana.tolerations, vars.kibana.allowOnMaster)>
 
 ---
 
