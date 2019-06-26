@@ -149,23 +149,17 @@ metadata:
   namespace: robobeerun-com-elastic
 type: Opaque
 data:
-  elk-crt.pem: |-
-    <vars.elastic.cert.elkCrt;format="base64">
+  elk-crt.pem: <vars.elastic.cert.elkCrt;format="base64">
 
-  elk-key.pem: |-
-    <vars.elastic.cert.elkKey;format="base64">
+  elk-key.pem: <vars.elastic.cert.elkKey;format="base64">
 
-  elk-root-ca.pem: |-
-    <vars.elastic.cert.elkRoot;format="base64">
+  elk-root-ca.pem: <vars.elastic.cert.elkRoot;format="base64">
 
-  admin-crt.pem: |-
-    <vars.elastic.cert.adminCrt;format="base64">
+  admin-crt.pem: <vars.elastic.cert.adminCrt;format="base64">
 
-  admin-key.pem: |-
-    <vars.elastic.cert.adminKey;format="base64">
+  admin-key.pem: <vars.elastic.cert.adminKey;format="base64">
 
-  admin-root-ca.pem: |-
-    <vars.elastic.cert.adminRoot;format="base64">
+  admin-root-ca.pem: <vars.elastic.cert.adminRoot;format="base64">
 
 ---
 
