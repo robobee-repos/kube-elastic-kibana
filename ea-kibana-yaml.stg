@@ -47,11 +47,11 @@ metadata:
   namespace: robobeerun-com-elastic
 type: Opaque
 data:
-  kibana-crt.pem: <vars.kibana.cert.crt;format="base64">
+  kibana-crt.pem: <vars.elastic.cert.kibanaCrt;format="base64">
 
-  kibana-key.pem: <vars.kibana.cert.key;format="base64">
+  kibana-key.pem: <vars.elastic.cert.kibanaKey;format="base64">
 
-  kibana-root-ca.pem: <vars.kibana.cert.root;format="base64">
+  kibana-root-ca.pem: <vars.elastic.cert.kibanaRoot;format="base64">
 
 ---
 
