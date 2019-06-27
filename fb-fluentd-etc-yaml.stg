@@ -8,7 +8,7 @@ fb-fluentd-etc-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fluentd-etc-<vars.fluentd.revision>
+  name: fluentd-etc-&vars.fluentd.revision&
   namespace: robobeerun-com-elastic
 data:
   fluent.conf: |
