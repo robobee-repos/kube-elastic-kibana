@@ -24,7 +24,7 @@ data:
     ---
     # Default Kibana configuration from kibana-docker.
     server.name: kibana
-    server.host: "kibana.andrea.muellerpublic.de"
+    server.host: "0"
 
     # Replace with Elasticsearch DNS name picked during Service deployment
     elasticsearch.url: ${ELASTICSEARCH_URL}
