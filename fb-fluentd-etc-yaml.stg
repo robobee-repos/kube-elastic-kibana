@@ -4,7 +4,7 @@
 
 delimiters "&", "&"
 
-fb-fluentd-etc-yaml(parent, vars) ::= &&
+fb-fluentd-etc-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -225,4 +225,4 @@ data:
       @id filter_kube_metadata
     </filter>
 
-&&
+>>
