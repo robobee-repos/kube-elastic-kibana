@@ -1,0 +1,104 @@
+/*
+ *
+ */
+
+import "robobeerun-templates/affinities.stg"
+import "robobeerun-templates/tolerations.stg"
+import "robobeerun-templates/resources.stg"
+import "robobeerun-templates/tcp_probe.stg"
+import "robobeerun-templates/cert_config.stg"
+import "robobeerun-templates/ingress_config.stg"
+
+fa-fluentd-daemonset-elasticsearch-rbac-yaml(parent, vars) ::= <<
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluentd
+  namespace: robobeerun-com-elastic
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: fluentd
+  namespace: robobeerun-com-elastic
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: fluentd
+roleRef:
+  kind: ClusterRole
+  name: fluentd
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: fluentd
+  namespace: robobeerun-com-elastic
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: robobeerun-com-elastic
+  labels:
+    k8s-app: fluentd-logging
+    version: v1
+    kubernetes.io/cluster-service: "true"
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: fluentd-logging
+        version: v1
+        kubernetes.io/cluster-service: "true"
+    spec:
+      serviceAccount: fluentd
+      serviceAccountName: fluentd
+      containers:
+      - name: fluentd
+        image: <vars.fluentd.image.name>:<vars.fluentd.image.version>
+        env:
+          - name:  FLUENT_ELASTICSEARCH_HOST
+            value: "https://elasticsearch.robobeerun-com-elastic.svc"
+          - name:  FLUENT_ELASTICSEARCH_PORT
+            value: "9200"
+          - name: FLUENT_ELASTICSEARCH_SCHEME
+            value: "https"
+          - name: FLUENT_ELASTICSEARCH_USER
+            value: "logstash"
+          - name: FLUENT_ELASTICSEARCH_PASSWORD
+            value: "<vars.elastic.users.logstash.password>"
+        <resourcesGroup(vars.fluentd)>
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        <affinitiesGroup(vars.fluentd.affinity)>
+        <tolerationMasterGroup(vars.fluentd.allowOnMaster)>
+        <tolerationsGroup(vars.fluentd.tolerations, vars.fluentd.allowOnMaster)>
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+---
+
+>>
