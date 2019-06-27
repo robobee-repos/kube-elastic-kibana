@@ -93,6 +93,9 @@ spec:
         - mountPath: /fluentd/etc/kubernetes.conf
           name: etc
           subPath: kubernetes.conf
+        - mountPath: /fluentd/etc/fluent.conf
+          name: etc
+          subPath: fluent.conf
       <affinitiesGroup(vars.fluentd.affinity)>
       <tolerationMasterGroup(vars.fluentd.allowOnMaster)>
       <tolerationsGroup(vars.fluentd.tolerations, vars.fluentd.allowOnMaster)>
