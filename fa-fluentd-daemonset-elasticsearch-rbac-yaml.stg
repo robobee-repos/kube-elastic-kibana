@@ -88,9 +88,9 @@ spec:
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
-        <affinitiesGroup(vars.fluentd.affinity)>
-        <tolerationMasterGroup(vars.fluentd.allowOnMaster)>
-        <tolerationsGroup(vars.fluentd.tolerations, vars.fluentd.allowOnMaster)>
+      <affinitiesGroup(vars.fluentd.affinity)>
+      <tolerationMasterGroup(vars.fluentd.allowOnMaster)>
+      <tolerationsGroup(vars.fluentd.tolerations, vars.fluentd.allowOnMaster)>
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
