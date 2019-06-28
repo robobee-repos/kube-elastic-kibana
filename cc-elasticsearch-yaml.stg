@@ -209,7 +209,7 @@ metadata:
   name: elasticsearch-security-<vars.elastic.revision>
   namespace: robobeerun-com-elastic
 data:
-  config.yml: |
+  config.yml: |-
     opendistro_security:
       dynamic:
         http:
@@ -225,16 +225,16 @@ data:
           basic_internal_auth_domain: 
             http_enabled: true
             transport_enabled: true
-            order: 4
+            order: 0
             http_authenticator:
               type: basic
               challenge: false
             authentication_backend:
               type: intern
           openid_auth_domain:
-            http_enabled: false
+            http_enabled: true
             transport_enabled: false
-            order: 5
+            order: 1
             http_authenticator:
               type: openid
               challenge: false
