@@ -51,7 +51,6 @@ data:
     opendistro_security.openid.connect_url: "<vars.kibana.openid.url>"
     opendistro_security.openid.client_id: "<vars.kibana.openid.id>"
     opendistro_security.openid.client_secret: "<vars.kibana.openid.secret>"
-    opendistro-security.openid.base_redirect_url = "https://kibana.andrea.muellerpublic.de".
 
 ---
 
